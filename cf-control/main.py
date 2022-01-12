@@ -1,14 +1,13 @@
-from manager import Agent 
-#from solver import *
-from solver import Server
-from solver import Model
-from manager import TaskRunner
+from src.manager import Agent 
+from src.solver import Server
+from src.solver import Model
+from src.manager import TaskRunner
 from time import sleep
 
 if __name__ == '__main__':
-    timestep = 0.1
+    timestep = 0.2
     # Define the model for the agent
-    model = Model(2,1,10,0.1)
+    model = Model(2,1,20,timestep)
     print(model._name)
     agent = Agent(model)
     agent.connect()
@@ -17,27 +16,19 @@ if __name__ == '__main__':
     # Server must first be built and then created
     S.build_server()
     S.run_server()
-    print(S.solve([1.0, 0]))
-    agent._state[0] = 1.0
+    #print(S.solve([1.0, 0]))
+    #agent._state[0] = 1.0
 
-    T = TaskRunner(agent, S, timestep)
+    T = TaskRunner(agent, S, timestep, False)
     # Main loop
 
     print("Running")
     T.set_run()
-#    while running:
-#        # Want something every (configured) timestep to run
-#        #schedule.every(0.1).seconds.do(pass, None)
-#        # Call server for solution with
-#        T.feedback()
-#        print(T._agent._input)
-#
-#        running = False
-#        sleep(1)
 
-    #T.runner()
+    T._agent.update_setpoint([0.1, 0])
+
     T.thread_start()
-    for i in range(10):
+    for i in range(5):
         print("Waiting another second, at ", i)
         sleep(1)
     T.stop_run()
