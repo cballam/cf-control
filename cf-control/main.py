@@ -16,10 +16,8 @@ if __name__ == '__main__':
     # Server must first be built and then created
     S.build_server()
     S.run_server()
-    #print(S.solve([1.0, 0]))
-    #agent._state[0] = 1.0
 
-    T = TaskRunner(agent, S, timestep, False)
+    T = TaskRunner(agent, S, timestep, True)
     # Main loop
 
     print("Running")

@@ -11,6 +11,9 @@ class Server:
         self.status = 'OK'
         # set connection to nonetype for now
         self.connection = None
+        # Last input is by default an empty list
+        self._last_input = []
+        self._state_traj = []
 
     def build_server(self, desired_tolerance = 1e-4, initial_tolerance = 1e-2):
         """
@@ -63,8 +66,19 @@ class Server:
                 print("Failed to find solution")
             else:
                 input = resp["solution"]
+                self._last_input = input
                 input = input[0:self._model._num_inputs]
                 return input
 
         # fail by returning no input as default
         return [0 for _ in range(self._model._num_inputs)]
+
+    def eval_traj(self, init_state : list) -> None:
+        """ Given an initial state and the (known) inputs found from solving optimization problem, create expected trajectory
+        """
+        state_traj = [init_state]
+        for inputs in zip(*[iter(self._last_input)]*self._model._num_inputs):
+            new_state = self._model._dynamics(state_traj[-1], *inputs)
+            state_traj.append(new_state)
+        print(state_traj)
+        self._state_traj = state_traj

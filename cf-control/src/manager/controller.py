@@ -18,14 +18,16 @@ class TaskRunner:
         self._running = False
         self._send_cmd = not bench_test
         print(f"Bench test: {bench_test}, sending command: {self._send_cmd}")
-        # Throws error at times, but this does allow for subsecond scheduling and not just 1-second intervals
-        schedule.every(self._ts).seconds.do(self.feedback)
         
     def set_run(self):
         """ Start a run. Must call before starting the runner.
         """
         self._running = True
         self._agent.takeoff(self._send_cmd)
+        # Throws error at times, but this does allow for subsecond scheduling and not just 1-second intervals
+        schedule.every(self._ts).seconds.do(self.feedback)
+        if not self._send_cmd:
+            print("Might start 'simulation' of agent state from recorded state here")
 
     def stop_run(self):
         """ Stop a run.
@@ -38,8 +40,10 @@ class TaskRunner:
         """
         state = self._agent.state_setpoint_diff()
         input = self._server.solve(state)
-        print(f"{time() - self._agent._start} Current state: {self._agent.current_state()}")
+        print(f"Current input array: {self._server._last_input}")
+        #print(f"{time() - self._agent._start} Current state: {self._agent.current_state()}")
         self._agent.update_input(input, self._send_cmd)
+        self._server.eval_traj(state.tolist())
 
     def loop(self):
         """ Task loop to run for control. Runs the feedback function. Not sure if I need this now
@@ -48,6 +52,8 @@ class TaskRunner:
 
 
     def thread_start(self):
+        """ Start a separate thread to handle all task running set up by the set_run method
+        """
         self._task_thread = threading.Thread(target=self.runner)
         print("Started")
         self._task_thread.start()

@@ -19,13 +19,13 @@ class Agent:
         self._ready = False
         self._start = time()
         
-    def current_state(self):
+    def current_state(self) -> list:
         """ Agent's stored state
         """
         # Generic getter fn to get the state of the agent.
         return self._state
 
-    def state_setpoint_diff(self):
+    def state_setpoint_diff(self) -> list:
         """ In case I want to do setpoint based control - may change in future
         """
         return self._state - self._setpoint
@@ -34,7 +34,7 @@ class Agent:
         """ Get a new input for the agent to send (through some channel) 
         """
         self._input = input
-        print(f"{time() - self._start}: Input should be: {input}")
+        #print(f"{time() - self._start}: Input should be: {input}")
         if self._ready and send_command:
             self._cf.commander.send_velocity_world_setpoint(input[0], 0, 0, 0)
 
